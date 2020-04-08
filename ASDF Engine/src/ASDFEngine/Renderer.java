@@ -26,18 +26,11 @@ import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
-
+import static org.lwjgl.opengl.GL11.*;
 import java.nio.IntBuffer;
+import Game.*;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -45,24 +38,26 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-class Renderer {
+public class Renderer{
 	Color _color;
 	String _name;
+	static IRenderer _inter;
 	int _width;
 	int _height;
-	public Renderer(Color color,int width,int height,String name) {
+	public Renderer(Color color,int width,int height,String name,IRenderer inter) {
 		
 		_color = color;
 		_width = width;
 		_height = height;
 		_name = name;
+		_inter = inter;
 		run();
 	}
 // The window handle
 	private long window;
 
 	public void run() {
-		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
+		//System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
 		init();
 		loop();
@@ -124,6 +119,12 @@ class Renderer {
 
 		// Make the window visible
 		glfwShowWindow(window);
+		_inter.Start();
+	}
+	public static void main(String[] args) {
+		//_inter.init();
+		//Graphics Example
+		new Renderer(GameManager.Background,GameManager.width,GameManager.height,"Hello",new GameManager());
 	}
 
 	private void loop() {
@@ -133,18 +134,15 @@ class Renderer {
 		// creates the GLCapabilities instance and makes the OpenGL
 		// bindings available for use.
 		GL.createCapabilities();
+		
 
 		// Set the clear color
 		glClearColor(_color.R, _color.G, _color.B, _color.A);
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		while (!glfwWindowShouldClose(window)) {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-			glBegin(GL_TRIANGLES);
-			glVertex2f(0.5f, 0.5f);
-			glVertex2f(1.0f, 0.5f);
-			glVertex2f(1.0f, 1.0f);
-			glEnd();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// clear the framebuffer
+			_inter.Update();
 			glfwSwapBuffers(window); // swap the color buffers
 
 			// Poll for window events. The key callback above will only be
@@ -152,8 +150,19 @@ class Renderer {
 			glfwPollEvents();
 		}
 	}
-	public static void main(String[] args) {
-		new Renderer(new Color(1,0,0,1),800,800,"hello");
-	}
+	/*Example Rendering
+	 * class name implements IRenderer{
+	 * 		@Override
+	 * 		public void Update(){
+	 * 			//code
+	 * 		}
+	 * 
+	 * }
+	*/
+	
 	
 }
+
+/*
+ * Graphics Example
+ */
